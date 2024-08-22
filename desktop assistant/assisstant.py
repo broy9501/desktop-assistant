@@ -1,6 +1,5 @@
-import pyttsx3, webbrowser as wb, smtplib, datetime, wikipedia, os, time
+import pyttsx3, webbrowser as wb, smtplib, datetime, wikipedia, os, time, random, requests
 import speech_recognition as sr
-import random
 from youtubesearchpython import VideosSearch
 
 
@@ -44,8 +43,8 @@ def send_email(to, content):
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.ehlo()
         server.starttls()
-        server.login('email0@gmail.com', 'appPassword')  # Use environment variables for security
-        server.sendmail('email0@gmail.com', to, content)
+        server.login('email@gmail.com', 'appPassword')  # Use environment variables for security
+        server.sendmail('email@gmail.com', to, content)
         server.close()
         speak("Email has been sent successfully!")
     except Exception as e:
@@ -62,6 +61,44 @@ def setReminder(reminders):
     reminders.append(fullCommand)
     
     return reminders
+
+
+def tempatureConversion(kelvin):
+    celsius = kelvin - 273.15
+    fahrenheit = (celsius * 9/5) + 32
+    return celsius, fahrenheit
+
+
+def checkWeather(city):
+    BASE_URL = "http://api.openweathermap.org/data/2.5/weather?"
+    API_KEY = open('api_key', 'r').read()
+    # city = capture_command()
+
+    url = BASE_URL + 'appid=' + API_KEY + '&q=' + city
+
+    response = requests.get(url).json()
+
+    temp = response['main']['temp']
+    tempC, tempF = tempatureConversion(temp)
+
+    feels_like = response['main']['feels_like']
+    feels_likeC, feels_likeF = tempatureConversion(feels_like)
+
+    humidity = response['main']['humidity']
+    description = response['weather'][0]['description']
+    wind_speed = response['wind']['speed']
+
+    print(f'The city {city} is a {description}')
+    print(f'Temperature is {tempC:.2f}°C or {tempF}°F')
+    print(f'The temperature feels like {feels_likeC:.2f}°C or {feels_likeF}°F')
+    print(f'The humidity is {humidity}%')
+    print(f'And the wind speed is {wind_speed * 2.237} miles per hour')
+
+    speak(f'The city {city} is a {description}')
+    speak(f'Temperature is {tempC:.2f}°C or {tempF:.2f}°F')
+    speak(f'The temperature feels like {feels_likeC:.2f}°C or {feels_likeF}°F')
+    speak(f'The humidity is {humidity}%')
+    speak(f'And the wind speed is {wind_speed * 2.237} miles per hour')
 
 
 def tasks_do(text):
@@ -180,6 +217,14 @@ def tasks_do(text):
         for remind in reminders:
             print(remind)
             speak(f'you have a reminder of {remind}')
+
+    elif 'what is the weather today' in text or 'what is the weather in' in text or 'what is the weather today in' in text:
+        if 'in' in text:
+            city = text.split('in')[-1].strip()
+        else:
+            city = 'Edinburgh'
+        
+        checkWeather(city)
         
 
 
