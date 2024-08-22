@@ -44,8 +44,8 @@ def send_email(to, content):
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.ehlo()
         server.starttls()
-        server.login('broy950@gmail.com', 'plbzzgnixbxujceo')  # Use environment variables for security
-        server.sendmail('broy950@gmail.com', to, content)
+        server.login('email0@gmail.com', 'appPassword')  # Use environment variables for security
+        server.sendmail('email0@gmail.com', to, content)
         server.close()
         speak("Email has been sent successfully!")
     except Exception as e:
